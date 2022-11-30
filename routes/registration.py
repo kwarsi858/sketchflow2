@@ -17,22 +17,52 @@ def newUser():
 
 @user_bp.route('/user', methods=['GET'])
 def getUser():
-    emailResp = ''
-    passwordResp = ''
     users_Collection = users('registration')
     email = request.args.get("email")
     password = request.args.get("password")
-    User = users_Collection.find_one()
-    idDelete = del User['_id']
-    emailInfo = User['email']
-    passwordInfo = User['password']
-    if email == emailInfo:
-        return {emailResp:emailInfo}
-    elif password == passwordInfo:
-        return {passwordResp:passwordInfo}
-    
-    return jsonify({'email':emailresp, 'password':passwordResp})
 
+    user = users_Collection.find_one({'email':email,'password':password})
+    del user['_id']
+    return jsonify({'user':user})
+
+
+
+@user_bp.route('/user',methods=['PUT'])
+def updateUser():
+    # retrieve data from db by email identifier
+    users_Collection = users('registration')
+    email = request.args.get('email')
+    getUser = users_Collection.find_one({'email': email})
+
+    # updated data from post form 
+    postData = request.json
+    if postData['email'] == getUser:
+        del getUser['email'] # deleting the original mongodb entry by using email as an identifier. 
+        users_Collection.insert_one(postData) # replacing the entry with the updated user collection. 
+        resp = 'success'
+    else:
+        resp = 'none'
+
+    return jsonify({'resp':resp})
+
+@user_bp.route('/user',methods=['DELETE'])
+def deleteUser():
+    try:
+        users_Collection = users('registration')
+        email = request.args.get('email')
+        getUser = users_Collection.find_one({'email':email})
+        del getUser['email']
+        resp = {'msg':success}
+    except Exception as e: 
+        resp = {'error':str(e)}
+
+    return jsonify(resp)
+
+        
+
+  
+
+    return jsonify({'msg'})
 
 
 
