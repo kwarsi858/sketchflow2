@@ -6,7 +6,7 @@ user_bp = Blueprint('registration', __name__, template_folder='templates')
 
 
 
-@user_bp.route('/user', methods=['POST'])
+@user_bp.route('/user/new', methods=['POST'])
 def newUser():
     users_Collection = users('registration')
     user_data = request.json
@@ -27,30 +27,33 @@ def getUser():
 
 
 
-@user_bp.route('/user',methods=['PUT'])
+@user_bp.route('/user/update',methods=['PUT'])
 def updateUser():
     # retrieve data from db by email identifier
     users_Collection = users('registration')
     email = request.args.get('email')
     getUser = users_Collection.find_one({'email': email})
-
+    del getUser['_id']
+    
     # updated data from post form 
-    postData = request.json
-    if postData['email'] == getUser:
-        del getUser['email'] # deleting the original mongodb entry by using email as an identifier. 
-        users_Collection.insert_one(postData) # replacing the entry with the updated user collection. 
-        resp = 'success'
-    else:
-        resp = 'none'
+    try:
+        postData = request.json
+        if postData['email'] == getUser:
+            del getUser # deleting the original mongodb entry by using email as an identifier for which user to delete
+            users_Collection.insert_one(postData) # replacing the entry with the updated user collection. 
+            resp = {'msg':'success'}
+    except Exception as e:
+        resp = {'msg':'error','error':str(e),}
+        
 
-    return jsonify({'resp':resp})
+    return jsonify(resp)
 
-@user_bp.route('/user',methods=['DELETE'])
+@user_bp.route('/removeUser',methods=['DELETE'])
 def deleteUser():
     try:
         users_Collection = users('registration')
-        email = request.args.get('email')
-        getUser = users_Collection.find_one({'email':email})
+        email = request.args.get('email') # using email as an identifier for which user to delet
+        getUser = users_Collection.drop()
         del getUser['email']
         resp = {'msg':success}
     except Exception as e: 
@@ -61,8 +64,6 @@ def deleteUser():
         
 
   
-
-    return jsonify({'msg'})
 
 
 
