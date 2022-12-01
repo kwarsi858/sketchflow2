@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, Blueprint
-from scripts.db import connect_to_db
+from scripts.db import DB
+
 
 # registered user
 user_bp = Blueprint('users', __name__, template_folder='templates')
@@ -17,11 +18,10 @@ def getUser():
     print('Triggering GET /user')
 
     try:
-        users_collection = connect_to_db('users')
         email = request.args.get("email")
         password = request.args.get("password")
-
-        user = users_collection.find_one({'email':email, 'password':password})
+        users_collection = DB('users')
+        user = users_collection.get({'email':email,'password':password})
         if user:
             print("Found user!")
             del user['_id']
@@ -33,19 +33,24 @@ def getUser():
 
 @user_bp.route('/user', methods=['POST'])
 def newUser():
-    users_collection = connect_to_db('users')
     user_data = request.json
-    users_collection.insert_one(user_data)
-    return jsonify({'msg': f'Saved User'})
+    try:
+        users_collection = DB('users') #setting up DB instance
+        users_collection.save(user_data)
+    except Exception as e:
+        error = str(e)
+
+
+    return jsonify({'data':user_data,'msg':'Saved User','error':error})
 
 @user_bp.route('/user/<email>',methods=['PUT'])
 def updateUser(email):
     try:
         # retrieve data from db by email identifier
-        users_collection = connect_to_db('users')
+        users_collection = DB('users')
 
         postData = request.json
-        users_collection.update_one({'email': email}, {"$set":postData}) # replacing the entry with the updated user collection. 
+        users_collection.update({'email': email}, {"$set":postData}) # replacing the entry with the updated user collection. 
         resp = {'msg':f'Updated User {email}'}
     except Exception as e:
         resp = {'msg':'error', 'error':str(e),}  
@@ -55,8 +60,8 @@ def updateUser(email):
 @user_bp.route('/user/<email>', methods=['DELETE'])
 def deleteUser(email):
     try:
-        users_collection = connect_to_db('users')
-        users_collection.delete_one({"email":email})   #deletes the user
+        users_collection = DB('users')
+        users_collection.delete({"email":email})   #deletes the user
         resp = {'msg':f"Deleted User {email}"}
     except Exception as e: 
         resp = {'error':str(e)}
