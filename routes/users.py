@@ -16,12 +16,13 @@ localhost:5000/user/farazfkm@gmail.com PUT | Endpoint
 @user_bp.route('/user', methods=['GET'])
 def getUser():
     print('Triggering GET /user')
-
+    
     try:
         email = request.args.get("email")
         password = request.args.get("password")
-        users_collection = DB('users')
-        user = users_collection.get({'email':email,'password':password})
+
+        db = DB('users')            
+        user = db.get({'email':email,'password':password})
         if user:
             print("Found user!")
             del user['_id']
@@ -35,8 +36,8 @@ def getUser():
 def newUser():
     user_data = request.json
     try:
-        users_collection = DB('users') #setting up DB instance
-        users_collection.save(user_data)
+        db = DB('users') #setting up DB instance
+        db.save(user_data)
     except Exception as e:
         error = str(e)
 
@@ -47,10 +48,11 @@ def newUser():
 def updateUser(email):
     try:
         # retrieve data from db by email identifier
-        users_collection = DB('users')
-
         postData = request.json
-        users_collection.update({'email': email}, {"$set":postData}) # replacing the entry with the updated user collection. 
+
+        db = DB('users')        
+        db.update({'email': email}, {"$set":postData}) # replacing the entry with the updated user collection.
+
         resp = {'msg':f'Updated User {email}'}
     except Exception as e:
         resp = {'msg':'error', 'error':str(e),}  
@@ -60,8 +62,9 @@ def updateUser(email):
 @user_bp.route('/user/<email>', methods=['DELETE'])
 def deleteUser(email):
     try:
-        users_collection = DB('users')
-        users_collection.delete({"email":email})   #deletes the user
+        db = DB('users')
+        db.delete({"email":email})   #deletes the user
+
         resp = {'msg':f"Deleted User {email}"}
     except Exception as e: 
         resp = {'error':str(e)}

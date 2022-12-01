@@ -4,8 +4,8 @@ from pymongo import MongoClient
 class DB():
     def __init__(self, table):
             self.client = MongoClient('localhost',27017)
-            self.db = client['sketchflow']
-            self.table = table
+            self.db = self.client['sketchflow']
+            self.table = self.db[table]
 
     def get(self, query):
         self.table.find_one(query)
@@ -20,8 +20,6 @@ class DB():
         self.table.delete_one(query)
 
 if __name__ == "__main__":
-
-    '''
     email = "bob@gmail.com"
     password = 123
     postData = {"email": "bob@gmail.com", "password": 553}
@@ -34,4 +32,3 @@ if __name__ == "__main__":
     db.save(postData)
     db.update({'email':email}, postData)
     db.delete({'email':email})
-    '''
