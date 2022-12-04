@@ -38,24 +38,26 @@ def newUser():
     try:
         db = DB('users') #setting up DB instance
         db.save(user_data)
+
+        msg = 'Saved user'
+        error = ''
     except Exception as e:
+        msg = ''
         error = str(e)
 
-
-    return jsonify({'data':user_data,'msg':'Saved User','error':error})
+    return jsonify({'data':'','msg':msg,'error':error})
 
 @user_bp.route('/user/<email>',methods=['PUT'])
 def updateUser(email):
     try:
-        # retrieve data from db by email identifier
         postData = request.json
 
         db = DB('users')        
         db.update({'email': email}, {"$set":postData}) # replacing the entry with the updated user collection.
 
-        resp = {'msg':f'Updated User {email}'}
+        resp = {'msg':f'Updated User {email}', 'error':''}
     except Exception as e:
-        resp = {'msg':'error', 'error':str(e),}  
+        resp = {'msg':'', 'error':str(e)}  
 
     return jsonify(resp)
 
@@ -65,9 +67,9 @@ def deleteUser(email):
         db = DB('users')
         db.delete({"email":email})   #deletes the user
 
-        resp = {'msg':f"Deleted User {email}"}
+        resp = {'msg':f"Deleted User {email}", 'error':''}
     except Exception as e: 
-        resp = {'error':str(e)}
+        resp = {'msg':'', 'error':str(e)}
 
     return jsonify(resp)
 

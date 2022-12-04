@@ -14,7 +14,7 @@ class DB():
         self.table.insert_one(data)
 
     def update(self, query, data):
-        self.table.update_one(query, data)
+        return self.table.update_one(query, data)
 
     def delete(self, query):
         self.table.delete_one(query)
