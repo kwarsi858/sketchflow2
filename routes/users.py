@@ -16,7 +16,7 @@ localhost:5000/user/farazfkm@gmail.com PUT | Endpoint
 @user_bp.route('/user', methods=['GET'])
 def getUser():
     print('Triggering GET /user')
-    
+
     try:
         email = request.args.get("email")
         password = request.args.get("password")
