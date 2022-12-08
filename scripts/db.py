@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import os
 
 
 class DB():
@@ -20,6 +21,7 @@ class DB():
         self.table.delete_one(query)
 
 if __name__ == "__main__":
+    '''
     email = "bob@gmail.com"
     password = 123
     postData = {"email": "bob@gmail.com", "password": 553}
@@ -32,3 +34,4 @@ if __name__ == "__main__":
     db.save(postData)
     db.update({'email':email}, postData)
     db.delete({'email':email})
+    '''
